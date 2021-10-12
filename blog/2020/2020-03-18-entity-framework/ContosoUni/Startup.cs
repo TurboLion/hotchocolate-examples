@@ -1,13 +1,11 @@
-using System;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using HotChocolate;
 using HotChocolate.AspNetCore;
-using HotChocolate.Execution.Configuration;
-
+using HotChocolate.Types.Pagination;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using System;
 
 namespace ContosoUniversity
 {
@@ -19,11 +17,14 @@ namespace ContosoUniversity
         {
             services.AddDbContext<SchoolContext>();
 
-            services.AddGraphQL(
-                SchemaBuilder.New()
-                    .AddQueryType<Query>()
-                    .Create(),
-                new QueryExecutionOptions { ForceSerialExecution = true });
+            services
+                .AddGraphQLServer()
+                .InitializeOnStartup()
+                .AddFiltering()
+                .AddProjections()
+                .AddSorting()
+                .SetPagingOptions(new PagingOptions() { IncludeTotalCount = true })
+                .AddQueryType<Query>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -38,15 +39,17 @@ namespace ContosoUniversity
 
             app.UseRouting();
 
-            app.UseGraphQL();
-            app.UsePlayground();
-
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGet("/", async context =>
-                {
-                    await context.Response.WriteAsync("Hello World!");
-                });
+                endpoints.MapGraphQL("/")
+                    .WithOptions(new GraphQLServerOptions
+                    {
+                        EnableSchemaRequests = true,
+                        Tool =
+                        {
+                            Enable = true
+                        }
+                    });
             });
         }
 

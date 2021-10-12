@@ -18,7 +18,7 @@ namespace ContosoUniversity
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            options.UseSqlite("Data Source=chat.db");
+            options.UseSqlite("Data Source=uni.db");
             options.UseLoggerFactory(_loggerFactory);
         }
 

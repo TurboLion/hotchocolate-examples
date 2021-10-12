@@ -1,28 +1,29 @@
-using System.Linq;
 using HotChocolate;
+using HotChocolate.Data;
 using HotChocolate.Types;
-using HotChocolate.Types.Relay;
+using System.Linq;
 
 namespace ContosoUniversity
 {
     public class Query
     {
         [UseFirstOrDefault]
-        [UseSelection]
-        public IQueryable<Student> GetStudentById([Service]SchoolContext context, int studentId) =>
+        [UseProjection]
+        public IQueryable<Student> GetStudentById([Service] SchoolContext context, int studentId) =>
             context.Students.Where(t => t.Id == studentId);
 
-        [UseSelection]
+        [UsePaging]
+        [UseProjection]
         [UseFiltering]
         [UseSorting]
-        public IQueryable<Student> GetStudents([Service]SchoolContext context) =>
+        public IQueryable<Student> GetStudents([Service] SchoolContext context) =>
             context.Students;
 
         [UsePaging]
-        [UseSelection]
+        [UseProjection]
         [UseFiltering]
         [UseSorting]
-        public IQueryable<Course> GetCourses([Service]SchoolContext context) =>
+        public IQueryable<Course> GetCourses([Service] SchoolContext context) =>
             context.Courses;
     }
 }
